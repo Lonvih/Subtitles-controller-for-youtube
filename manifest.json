@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "youtube english learning",
+  "description": "Controll video process by subtitles, back,forward, and repeat till you are satisfied.",
+  "version": "1.0",
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/watch*"],
+      "run_at": "document_end",
+      "js": ["inject.js", "js/jquery.min.js", "js/subtitles.js"]
+    }
+  ],
+  "permissions": ["webRequest"],
+  "host_permissions": ["<all_urls>"],
+  "web_accessible_resources": [
+    { "resources": ["xhr.js"], "matches": ["*://*.youtube.com/*"] },
+    { "resources": ["content.html"], "matches": ["*://*.youtube.com/*"] },
+    { "resources": ["content.js"], "matches": ["*://*.youtube.com/*"] }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

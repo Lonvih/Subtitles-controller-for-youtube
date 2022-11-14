@@ -1,0 +1,108 @@
+<div>
+  <style>
+    .__extension_icon {
+      position: fixed;
+      right: 20px;
+      top: 100px;
+      width: 74px;
+      height: 36px;
+      border-radius: 8px;
+      z-index: 9999999;
+      cursor: pointer;
+      transform: scale(0.7);
+      transition: all 0.2s;
+      transform-origin: center center;
+    }
+
+    .__extension_icon:hover {
+      transform: scale(1);
+    }
+
+    .__video_subitles {
+      position: absolute;
+      left: 0;
+      top: 24px;
+      width: 100%;
+      min-height: 700px;
+      z-index: 99999;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background-color: #0f0f0f;
+      /* display: none; */
+    }
+
+    .__video_subitles--hidden {
+      display: none;
+    }
+
+    .__subtitles_head {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      padding: 4px;
+    }
+
+    .__subtitles_head p {
+      padding: 2px 4px;
+      margin-right: 4px;
+      font-size: 16px;
+      /* font-weight: bold; */
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .__subtitles_head p:hover {
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .__subtitles_head img {
+      width: 30px;
+      height: 30px;
+      margin-right: 12px;
+      /* border-radius: 50%; */
+      cursor: pointer;
+      transition: all 0.1s linear;
+    }
+
+    .__subtitles_head img:hover {
+      /* width: 34px;
+      height: 34px; */
+      transform: scale(1.2);
+      transform-origin: left center;
+    }
+
+    .__subtitle_block {
+      /* height: 20px; */
+      padding: 4px;
+      line-height: 24px;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .__subtitle_block:hover {
+      /* transform: scale(1.1); */
+      color:rgba(255, 255, 255, 0.9);
+      font-weight: bold;
+    }
+
+    .__subtitle_block-active {
+      font-size: 18px;
+      font-weight: bold;
+      color: rgb(153, 225, 156) !important;
+    }
+  </style>
+  <img src="https://www.webwise.ie/wp-content/uploads/2014/04/Slider8.jpg" class="__extension_icon" />
+  <div class="__video_subitles">
+    <div class="__subtitles_head">
+      <img src="https://s1.ax1x.com/2022/11/14/zA2N38.png" alt="prev" />
+      <img src="https://s1.ax1x.com/2022/11/14/zA20Bj.png" alt="next" />
+      <!-- <p>上一句</p>
+      <p>下一句</p> -->
+    </div>
+    <div class="__subtitles_content">
+
+    </div>
+  </div>
+</div>
