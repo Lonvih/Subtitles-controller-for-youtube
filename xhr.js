@@ -251,4 +251,18 @@ class RewriteNetwork {
   }
 }
 
+// const __hackHistory = function (type) {
+//   console.log('type: ', type);
+//   const originFn = window.history[type];
+//   return function () {
+//     const r = originFn.apply(this, arguments);
+//     const e = new Event(type);
+//     e.arguments = arguments;
+//     window.dispatchEvent(e);
+//     return r;
+//   };
+// };
+// window.history.pushState = __hackHistory("pushState");
+// window.history.replaceState = __hackHistory("replaceState");
+
 new RewriteNetwork()

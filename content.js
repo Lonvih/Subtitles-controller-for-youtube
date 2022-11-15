@@ -18,25 +18,22 @@
   let contentDom = null; // 字幕内容 dom
 
   function msToSecondOffset(ms) {
-    return Math.max((ms - 100), 0) / 1000;
+    return Math.max(ms - 100, 0) / 1000;
   }
 
   function genSubtitleBlock(text, startTimeMs) {
     const el = document.createElement("div");
     el.className = "__subtitle_block";
     el.innerHTML = text;
-    el.addEventListener('click', () => {
+    el.addEventListener("click", () => {
       // console.log('startTimeMs: ', startTimeMs);
-      videoEl.currentTime = msToSecondOffset(startTimeMs)
-    })
+      videoEl.currentTime = msToSecondOffset(startTimeMs);
+    });
     return el;
   }
 
   function getContentDom() {
-    if (!contentDom) {
-      contentDom = document.querySelector(".__subtitles_content");
-    }
-    return contentDom
+    return document.querySelector(".__subtitles_content");
   }
 
   function appendSubtitle() {}
@@ -67,7 +64,7 @@
         slideIndex = [slideIndex[0], first + half - 1];
       }
     }
-    
+
     // console.log('slideIndex: ', slideIndex);
     /* 
       还有一种情况: 当前时间在中间, 但是有一段时间是没有字幕的, 此时上面的循环匹配不到
@@ -92,13 +89,17 @@
   function renderSubtitle(startIndex) {
     // console.log('startIndex: ', startIndex);
     const arr = [];
-    for(let i = startIndex; i < startIndex + pageSize && i < subtitleData.length - 1; i++) {
-      const { segs = [], tStartMs } = subtitleData[i]
-      arr.push(genSubtitleBlock(segs[0].utf8 || '', tStartMs))
+    for (
+      let i = startIndex;
+      i < startIndex + pageSize && i < subtitleData.length - 1;
+      i++
+    ) {
+      const { segs = [], tStartMs } = subtitleData[i];
+      arr.push(genSubtitleBlock(segs[0].utf8 || "", tStartMs));
     }
     const subtitleContentEl = getContentDom();
-    subtitleContentEl.innerHTML = '';
-    subtitleContentEl.append(...arr)
+    subtitleContentEl.innerHTML = "";
+    subtitleContentEl.append(...arr);
     curRenderIdx = [startIndex, startIndex + pageSize - 1];
   }
 
@@ -109,18 +110,21 @@
     const subtitleContentEls = document.querySelectorAll(".__subtitle_block");
     [...subtitleContentEls].forEach((el, idx) => {
       if (idx === index) {
-        el.classList.add('__subtitle_block-active') 
+        el.classList.add("__subtitle_block-active");
       } else {
-        el.classList.remove('__subtitle_block-active')
+        el.classList.remove("__subtitle_block-active");
       }
-    })
+    });
   }
 
   function videoListener() {
-    videoEl = document.querySelector("video");
+    const video = document.querySelector("video");
+    // console.log('videoEl === video: ', videoEl === video);
+    if (videoEl === video) return;
+    videoEl = video;
     videoEl.addEventListener("timeupdate", (e) => {
       const currentTimeMs = videoEl.currentTime * 1000;
-      const matchSubtitleIndex = findIndexMatchVideoTime(currentTimeMs)
+      const matchSubtitleIndex = findIndexMatchVideoTime(currentTimeMs);
       if (curSubtitleDataIndex !== matchSubtitleIndex) {
         // console.log('matchSubtitleIndex: ', matchSubtitleIndex);
         isSubtitleChange = true;
@@ -128,77 +132,82 @@
       }
       if (matchSubtitleIndex >= subtitleData.length) {
         // 说明在视频末尾了, 且后续没有字幕了, 那么显示最后一页字幕
-        curSubtitleStartIndex = (pageTotal - 1) * pageSize
+        curSubtitleStartIndex = (pageTotal - 1) * pageSize;
       } else {
-        curSubtitleStartIndex = Math.floor(matchSubtitleIndex / pageSize) * pageSize
+        curSubtitleStartIndex =
+          Math.floor(matchSubtitleIndex / pageSize) * pageSize;
       }
       // console.log('curSubtitleStartIndex: ', curSubtitleStartIndex);
       // 如果索引还处在已渲染的区间内, 则不做任何渲染操作
-      if (curRenderIdx.length && curSubtitleStartIndex >= curRenderIdx[0] && curSubtitleStartIndex <= curRenderIdx[1]) {
+      if (
+        curRenderIdx.length &&
+        curSubtitleStartIndex >= curRenderIdx[0] &&
+        curSubtitleStartIndex <= curRenderIdx[1]
+      ) {
         toggleActiveSubtitleStyle();
         return;
       }
       // 渲染字幕
-      renderSubtitle(curSubtitleStartIndex)
+      renderSubtitle(curSubtitleStartIndex);
       toggleActiveSubtitleStyle();
     });
   }
 
   function navigateSentence(newDataIndex) {
-    const subtitle = subtitleData[Math.max(newDataIndex, 0)]
+    const subtitle = subtitleData[Math.max(newDataIndex, 0)];
     if (subtitle) {
       const { tStartMs } = subtitle;
-      videoEl.currentTime = msToSecondOffset(tStartMs)
+      videoEl.currentTime = msToSecondOffset(tStartMs);
     }
   }
 
   function controllListener() {
-    const icons = document.querySelectorAll('.__subtitles_head img');
+    const icons = document.querySelectorAll(".__subtitles_head img");
     const prev = icons[0];
     const next = icons[1];
-    prev.addEventListener('click', () => {
+    prev.addEventListener("click", () => {
       navigateSentence(curSubtitleDataIndex - 1);
-    })
-    next.addEventListener('click', () => {
+    });
+    next.addEventListener("click", () => {
       navigateSentence(curSubtitleDataIndex + 1);
-    })
+    });
   }
 
   function initContainerStyle() {
-    const youtubeContainer = document.querySelector('#container')
+    const youtubeContainer = document.querySelector("#container");
     const el = document.querySelector(".__video_subitles");
-    el.style['min-height'] = youtubeContainer.getBoundingClientRect().height;
+    el.style["min-height"] = youtubeContainer.getBoundingClientRect().height;
   }
 
   async function main() {
-    if (inited) return;
+    // if (inited) return;
     let cachedSubtitleData = window.localStorage.getItem("__subtitles_data__");
     if (!cachedSubtitleData) return;
     cachedSubtitleData = JSON.parse(cachedSubtitleData);
     subtitleData = cachedSubtitleData.events || [];
     const subtitleContentEl = getContentDom();
     if (subtitleContentEl) {
-      pageTotal = Math.ceil(subtitleData.length / pageSize)
+      pageTotal = Math.ceil(subtitleData.length / pageSize);
       // video 时间监听
       videoListener();
       controllListener();
       // setTimeout(() => {
       //   initContainerStyle()
       // }, 1000);
-      inited = true;
+      // inited = true;
     } else {
       // timer = setTimeout(main, 1500)
     }
   }
 
   function toggleContent() {
-    if (!inited) return;
+    // if (!inited) return;
     const el = document.querySelector(".__video_subitles");
-    const hiddenCls = '__video_subitles--hidden'
+    const hiddenCls = "__video_subitles--hidden";
     if (el.classList.contains(hiddenCls)) {
-      el.classList.remove(hiddenCls)
+      el.classList.remove(hiddenCls);
     } else {
-      el.classList.add(hiddenCls)
+      el.classList.add(hiddenCls);
     }
   }
 
@@ -213,4 +222,15 @@
   }
 
   init();
+  window.addEventListener('message', (e) => {
+    const { event, data } = e.data;
+    if (event === '__subtitles_data_cached__') {
+      subtitleData = [];
+      curSubtitleStartIndex = 0;
+      curRenderIdx = [];
+      curSubtitleDataIndex = 0;
+      isSubtitleChange = true;
+      main();
+    }
+  })
 })();
