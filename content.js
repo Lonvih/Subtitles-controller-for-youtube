@@ -91,7 +91,7 @@
     const arr = [];
     for (
       let i = startIndex;
-      i < startIndex + pageSize && i < subtitleData.length - 1;
+      i < startIndex + pageSize && i <= subtitleData.length - 1;
       i++
     ) {
       const { segs = [], tStartMs } = subtitleData[i];
