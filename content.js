@@ -28,6 +28,7 @@
     el.addEventListener("click", () => {
       // console.log('startTimeMs: ', startTimeMs);
       videoEl.currentTime = msToSecondOffset(startTimeMs);
+      videoEl.play()
     });
     return el;
   }
