@@ -62,6 +62,7 @@
       /* border-radius: 50%; */
       cursor: pointer;
       transition: all 0.1s linear;
+      border-radius: 4px;
     }
 
     .__subtitles_head img:hover {
@@ -91,16 +92,49 @@
       font-weight: bold;
       color: rgb(153, 225, 156) !important;
     }
+
+    .__whole_subtitles {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 800px;
+      height: 700px;
+      padding: 12px 24px;
+      transform: translateX(-105%);
+      font-size: 16px;
+      line-height: 24px;
+      background-color: #0f0f0f;
+      color: rgba(255, 255, 255, 0.6);
+      overflow: scroll;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 8px;
+      display: none;
+    }
+
+    .__whole_subtitles div {
+      padding: 4px;
+    }
+
+    .__whole_subtitles div span{
+      margin-right: 8px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      transform: scale(0.5);
+      transform-origin: left center;
+    }
   </style>
   <img src="https://www.webwise.ie/wp-content/uploads/2014/04/Slider8.jpg" class="__extension_icon" />
   <div class="__video_subitles __video_subitles--hidden">
     <div class="__subtitles_head">
       <img src="https://s1.ax1x.com/2022/11/14/zA2N38.png" alt="prev" />
       <img src="https://s1.ax1x.com/2022/11/14/zA20Bj.png" alt="next" />
-      <!-- <p>上一句</p>
-      <p>下一句</p> -->
+      <img src="https://s1.ax1x.com/2022/12/04/zsMHW8.png" alt="Repeat sentence">
+      <img src="https://s1.ax1x.com/2022/12/12/zhTNwQ.png" alt="Whole paragraph">
     </div>
     <div class="__subtitles_content">
+
+    </div>
+    <div class="__whole_subtitles">
 
     </div>
   </div>

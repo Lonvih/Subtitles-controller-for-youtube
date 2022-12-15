@@ -16,6 +16,11 @@
   let curSubtitleDataIndex = 0; // 当前正在播放的字幕索引
   let isSubtitleChange = true; // 字幕是否发生变动
   let contentDom = null; // 字幕内容 dom
+  // how is repeat status : When a sentence endwith symbol '.', means its the sentence end, otherwise not.
+  let isRepeat = false; // 是否是重复播放状态
+  let repeatSentenceStartIndex = -1;
+  let isDisplayWholeSubtitle = false; // whether display whole subtitles
+  let videoChanged = true;
 
   function msToSecondOffset(ms) {
     return Math.max(ms - 100, 0) / 1000;
@@ -25,11 +30,11 @@
     const el = document.createElement("div");
     el.className = "__subtitle_block";
     el.innerHTML = text;
-    el.addEventListener("click", () => {
+    el.onclick = () => {
       // console.log('startTimeMs: ', startTimeMs);
       videoEl.currentTime = msToSecondOffset(startTimeMs);
       videoEl.play()
-    });
+    }
     return el;
   }
 
@@ -37,7 +42,12 @@
     return document.querySelector(".__subtitles_content");
   }
 
-  function appendSubtitle() {}
+  function genRepeatIcon() {
+    const img = document.createElement('img')
+    img.src = 'https://s1.ax1x.com/2022/12/04/zsMHW8.png'
+    img.alt = 'Repeat sentence'
+    return img;
+  }
 
   function findIndexMatchVideoTime(timeMs) {
     // console.log('timeMs: ', timeMs);
@@ -118,6 +128,28 @@
     });
   }
 
+  // if isRepeat is true, means the sentence needs to be repeat.
+  let prevSentenceStr = ''; // Record end string to decide repeatSentenceStartIndex is right, no need to recalc if its right
+  let repeatCurTimeMs = 0;
+  function backToSentenceStartIfNeedRepeat() {
+    if (!isRepeat) return;
+    
+    // record repeat index
+    const curSubtitle = subtitleData[curSubtitleDataIndex] || {}
+    const { segs = [] } = curSubtitle
+    const subtitleUtf8 = segs[0] && segs[0].utf8;
+    if (prevSentenceStr && prevSentenceStr.endsWith('.') && subtitleUtf8 !== prevSentenceStr) {
+      // Means its next sentence now, back to last sentence
+    }
+    if (!subtitleUtf8 || !subtitleUtf8.endsWith('.')) return;
+
+    repeatCurTimeMs = Date.now();
+    if (subtitleUtf8 && subtitleUtf8.endsWith('.')) {
+      // Means its last, back to start when its finish
+      repeatSentenceEndStr = subtitleUtf8
+    }
+  }
+
   function videoListener() {
     const video = document.querySelector("video");
     // console.log('videoEl === video: ', videoEl === video);
@@ -138,6 +170,7 @@
         curSubtitleStartIndex =
           Math.floor(matchSubtitleIndex / pageSize) * pageSize;
       }
+
       // console.log('curSubtitleStartIndex: ', curSubtitleStartIndex);
       // 如果索引还处在已渲染的区间内, 则不做任何渲染操作
       if (
@@ -146,11 +179,13 @@
         curSubtitleStartIndex <= curRenderIdx[1]
       ) {
         toggleActiveSubtitleStyle();
+        // backToSentenceStartIfNeedRepeat();
         return;
       }
       // 渲染字幕
       renderSubtitle(curSubtitleStartIndex);
       toggleActiveSubtitleStyle();
+      // backToSentenceStartIfNeedRepeat();
     });
   }
 
@@ -162,16 +197,69 @@
     }
   }
 
+  function repeatSentence(el) {
+    isRepeat = !isRepeat;
+    if (isRepeat) {
+      el.style.backgroundColor = 'rgba(240,240,240, 0.5)';
+    } else {
+      el.style.backgroundColor = '';
+    }
+  }
+
+  function displayWholeSubtitleIndividual() {
+    isDisplayWholeSubtitle = !isDisplayWholeSubtitle
+    const wholeSubtitleEl = document.querySelector('.__whole_subtitles')
+    if (wholeSubtitleEl) {
+      wholeSubtitleEl.style.display = isDisplayWholeSubtitle ? 'block' : 'none';
+      if (!wholeSubtitleEl.innerHTML || videoChanged) {
+        // insert subtitles to el
+        let isSentenceProcessing = false;
+        let num = 0
+        let total = 0;
+        const wholeSubtitleText = subtitleData.map(item => {
+          const { segs = [], tStartMs } = item;
+          const t = segs[0] && segs[0].utf8;
+          let prefix = ''
+          let suffix = ' '
+          if (!isSentenceProcessing) {
+            num += 1;
+            prefix = `<div><span>${num}/\${total}</span>`
+            isSentenceProcessing = true;
+          }
+          const isLastSentence = /\w\.$/i.test(t);
+          if (isLastSentence) {
+            suffix = '</div>'
+            isSentenceProcessing = false;
+            total += 1
+          }
+          return prefix + t + suffix;
+        }).join('');
+        wholeSubtitleEl.innerHTML = wholeSubtitleText.replace(/\$\{total\}/g, total);
+        videoChanged = false;
+      }
+    }
+  }
+
   function controllListener() {
+    /**
+     * img1: Prev
+     * img2: Next
+     * img3: Repeat
+     * img4: Display whole subtitles in individual content
+     *  */
     const icons = document.querySelectorAll(".__subtitles_head img");
     const prev = icons[0];
     const next = icons[1];
-    prev.addEventListener("click", () => {
+    const repeat = icons[2];
+    const displayWholeSubtitleIcon = icons[3]
+    prev.onclick = () => {
       navigateSentence(curSubtitleDataIndex - 1);
-    });
-    next.addEventListener("click", () => {
+    }
+    next.onclick = () => {
       navigateSentence(curSubtitleDataIndex + 1);
-    });
+    }
+    repeat.onclick = () => repeatSentence(repeat)
+    displayWholeSubtitleIcon.onclick = displayWholeSubtitleIndividual
   }
 
   function initContainerStyle() {
@@ -214,10 +302,10 @@
 
   function init() {
     const iconEl = document.querySelector(".__extension_icon");
-    iconEl.addEventListener("click", () => {
+    iconEl.onclick = () => {
       main();
       toggleContent();
-    });
+    }
     // const subtitleContentEl = document.querySelector(".__subtitles_content");
     main();
   }
@@ -231,6 +319,8 @@
       curRenderIdx = [];
       curSubtitleDataIndex = 0;
       isSubtitleChange = true;
+      repeatSentenceStartIndex = -1;
+      videoChanged = true;
       main();
     }
   })
