@@ -214,6 +214,7 @@
       if (!wholeSubtitleEl.innerHTML || videoChanged) {
         // insert subtitles to el
         let isSentenceProcessing = false;
+        let isQuote = false;
         let num = 0
         let total = 0;
         const wholeSubtitleText = subtitleData.map(item => {
@@ -226,8 +227,13 @@
             prefix = `<div><span>${num}/\${total}</span>`
             isSentenceProcessing = true;
           }
-          const isLastSentence = /\w\.$/i.test(t);
-          if (isLastSentence) {
+          if (isQuote && /[”"]/.test(t)) {
+            isQuote = false;
+          } else if (/[“"]/.test(t) && !/”/.test(t) && (t.match(/[“"]/g).length % 2) > 0) {
+            isQuote = true;
+          }
+          const isLastSentence = /\w\.?(\.|\!|\?|”|")$/i.test(t);
+          if (isLastSentence && !isQuote) {
             suffix = '</div>'
             isSentenceProcessing = false;
             total += 1
