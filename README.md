@@ -1,5 +1,5 @@
 # An extension of chrome.
-I'm not native english speaker. Usually, i'll watching youtube video to practice my english skills, especially listening skill. That's why i am develop this extension. It's still working in progress. If you have anything suggestions, you can open an issue.
+I'm not native english speaker. Usually, im always practice my english skills from youtube videos, especially listening skill. That's why i was developed this extension. It's still working in progress. If you have anything suggestions, you can open an issue.
 
 # How to install
 - Download this repo.
