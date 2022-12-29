@@ -217,30 +217,40 @@
         let isQuote = false;
         let num = 0
         let total = 0;
-        const wholeSubtitleText = subtitleData.map(item => {
-          const { segs = [], tStartMs } = item;
+        let wholeSubtitleText = subtitleData.map(item => {
+          const { segs = [] } = item;
           const t = segs[0] && segs[0].utf8;
-          let prefix = ''
-          let suffix = ' '
-          if (!isSentenceProcessing) {
-            num += 1;
-            prefix = `<div><span>${num}/\${total}</span>`
-            isSentenceProcessing = true;
+          // let prefix = ''
+          // let suffix = ' '
+          // if (!isSentenceProcessing) {
+          //   num += 1;
+          //   // prefix = `<div><span>${num}/\${total}</span>`
+          //   isSentenceProcessing = true;
+          // }
+          // if (isQuote && /[”"]/.test(t)) {
+          //   isQuote = false;
+          // } else if (/[“"]/.test(t) && !/”/.test(t) && (t.match(/[“"]/g).length % 2) > 0) {
+          //   isQuote = true;
+          // }
+          let sentenceEndReg = /(\w(?<!Mr))(\.|\!|\?)("?)/ig
+          const r = t.replace(sentenceEndReg, "$1$2$3</div><div><span>${num}/${total}</span>")
+          // const isLastSentence = /\w\.?(\.|\!|\?|”|")$/i.test(t);
+          // if (isLastSentence && !isQuote) {
+          //   // suffix = '</div>'
+          //   isSentenceProcessing = false;
+          //   total += 1
+          // }
+          // return prefix + t + suffix;
+          return r;
+        }).join(' ');
+        const m = wholeSubtitleText.match(/\${num}/g)
+        if (m) {
+          for(let i = 0; i < m.length;i++) {
+            wholeSubtitleText = wholeSubtitleText.replace('${num}', i + 1).replace('${total}', m.length)
           }
-          if (isQuote && /[”"]/.test(t)) {
-            isQuote = false;
-          } else if (/[“"]/.test(t) && !/”/.test(t) && (t.match(/[“"]/g).length % 2) > 0) {
-            isQuote = true;
-          }
-          const isLastSentence = /\w\.?(\.|\!|\?|”|")$/i.test(t);
-          if (isLastSentence && !isQuote) {
-            suffix = '</div>'
-            isSentenceProcessing = false;
-            total += 1
-          }
-          return prefix + t + suffix;
-        }).join('');
-        wholeSubtitleEl.innerHTML = wholeSubtitleText.replace(/\$\{total\}/g, total);
+        }
+
+        wholeSubtitleEl.innerHTML = wholeSubtitleText;
         videoChanged = false;
       }
     }
