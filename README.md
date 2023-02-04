@@ -9,7 +9,7 @@ The extension was only worked for videos that's has subtitles, not for auto-gene
 - In develop mode, load extension manully.
 
 # If not work
-Sometimes extension scripts was loaded after page was loaded, cause injected js cannot listen page request like subtitles request, will not init correct. i dont kown why that happen yet. You can follow the steps behinds:
+Sometimes extension scripts was loaded after page was loaded, cause injected js cannot listen page request like subtitles request, result in extension not init correct. i dont kown why that happen yet. You can follow the steps behinds:
 1. In the youtube video, click subtitle control icon to reload subtitle request;
 2. Open browser develop tool, CMD+shift+i(Mac), and reload page, repeat number 1 step again.
 
